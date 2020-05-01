@@ -20,10 +20,10 @@
 #define EXH_FLOWSENSOR_PIN A7
 
 //state machine variables
-#define INSPIRE_TIME 500
-#define PIP 151 // = 1.5kpa - 20cmH2O
-#define EXPIRE_TIME 1500
-#define PEEP 76 // = 0.5kpa = 5cmH2O
+#define INSPIRE_TIME 2000
+#define PIP 606 // = 20cmH2O (10bit scaling)
+#define EXPIRE_TIME 2000
+#define PEEP 305 // = 5cmH2O (10bit scaling)
 //not implemented yet
 #define AC 0
 #define RR 0
@@ -44,7 +44,7 @@ unsigned int now = 0;
 
 
 //Specify the links and initial tuning parameters
-double Kp = 2, Ki = 0, Kd = 0;
+double Kp = 0.7*0.45, Ki = 0.7*0.54/0.16, Kd = 0;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 void setup() {
@@ -58,7 +58,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
 
   //Initialize PID
-  Input = map(analogRead(DPSENSOR_PIN), 0, 1023, 0, 255);
+  Input = analogRead(DPSENSOR_PIN);
   Setpoint = PEEP;
   //turn the PID on
   myPID.SetMode(AUTOMATIC);
@@ -116,7 +116,7 @@ void loop() {
   flowValueINH = analogRead(INH_FLOWSENSOR_PIN);
   flowValueEXH = analogRead(EXH_FLOWSENSOR_PIN);
   //Update PID Loop
-  Input = map(sensorValue, 0, 1023, 0, 255); //map to output scale
+  Input = sensorValue; //map to output scale
   myPID.Compute(); // compute PID command
   setpointIAV = (int)Output; //update valve command
 
@@ -151,8 +151,8 @@ void loop() {
   Serial.print("C"); //output to monitor
   Serial.write(now>>8);
   Serial.write(now&0xff);
-  Serial.write(int(map(Setpoint,0,255,0,1023))>>8); //output to monitor
-  Serial.write(int(map(Setpoint,0,255,0,1023))&0xff); //output to monitor
+  Serial.write(int(Setpoint)>>8); //output to monitor
+  Serial.write(int(Setpoint)&0xff); //output to monitor
   Serial.write(int(Output)>>8); //output to monitor
   Serial.write(int(Output)&0xff); //output to monitor
   Serial.write(int(sensorValue)>>8); //output to monitor
