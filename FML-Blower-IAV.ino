@@ -20,10 +20,10 @@
 #define EXH_FLOWSENSOR_PIN A7
 
 //state machine variables
-#define INSPIRE_TIME 2000
-#define PIP 606 // = 20cmH2O (10bit scaling)
-#define EXPIRE_TIME 2000
-#define PEEP 305 // = 5cmH2O (10bit scaling)
+#define INSPIRE_TIME 500
+#define PIP 400//606 // = 20cmH2O (10bit scaling)
+#define EXPIRE_TIME 750
+#define PEEP 150//305 // = 5cmH2O (10bit scaling)
 //not implemented yet
 #define AC 0
 #define RR 0
@@ -85,6 +85,7 @@ void loop() {
       cyclecounter++;
       //set command
       Setpoint = PIP;
+      //setpointIAV = 1000;
       digitalWrite(SOLENOIDCTLPIN,1);
       //update state
       if (cyclecounter > INSPIRE_TIME) {
@@ -97,9 +98,10 @@ void loop() {
       cyclecounter++;
       //set command
       Setpoint = PEEP;
+      //setpointIAV = 100;
       digitalWrite(SOLENOIDCTLPIN,1);
       //update state
-      if (cyclecounter > INSPIRE_TIME) {
+      if (cyclecounter > EXPIRE_TIME) {
         cyclecounter = 0;
         state = 0;
       }
@@ -118,7 +120,8 @@ void loop() {
   //Update PID Loop
   Input = sensorValue; //map to output scale
   myPID.Compute(); // compute PID command
-  setpointIAV = (int)Output; //update valve command
+  setpointIAV = 2*(int)Output; //update valve command
+ 
 
   //Move valve
   //limit checks
@@ -153,8 +156,8 @@ void loop() {
   Serial.write(now&0xff);
   Serial.write(int(Setpoint)>>8); //output to monitor
   Serial.write(int(Setpoint)&0xff); //output to monitor
-  Serial.write(int(Output)>>8); //output to monitor
-  Serial.write(int(Output)&0xff); //output to monitor
+  Serial.write(int(setpointIAV)>>8); //output to monitor
+  Serial.write(int(setpointIAV)&0xff); //output to monitor
   Serial.write(int(sensorValue)>>8); //output to monitor
   Serial.write(int(sensorValue)&0xff); //output to monitor
 
