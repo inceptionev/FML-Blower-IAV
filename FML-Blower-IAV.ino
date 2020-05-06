@@ -4,11 +4,11 @@
 #define EN_PIN 4
 #define DIR_PIN 3
 #define STEP_PIN 2
-#define STEPLOW 450
+#define STEPLOW 200
 #define STEPHIGH 50
-#define STROKEMAX 1000
+#define STROKEMAX 240
 #define STROKEMIN 0
-#define STARTSTROKE 1250
+#define STARTSTROKE 240
 #define COMMANDCYCLE 4
 #define STATETIME 100
 
@@ -67,7 +67,7 @@ void setup() {
   //home the actuator
   digitalWrite(STEP_PIN, LOW);
   digitalWrite(EN_PIN, LOW);
-  digitalWrite(DIR_PIN, HIGH);
+  digitalWrite(DIR_PIN, LOW);
   for(int k=0; k<STARTSTROKE; k++){
     digitalWrite(STEP_PIN, HIGH);
     delayMicroseconds(STEPHIGH);
@@ -85,7 +85,7 @@ void loop() {
       cyclecounter++;
       //set command
       Setpoint = PIP;
-      //setpointIAV = 1000;
+      setpointIAV = 10;
       digitalWrite(SOLENOIDCTLPIN,1);
       //update state
       if (cyclecounter > INSPIRE_TIME) {
@@ -98,7 +98,7 @@ void loop() {
       cyclecounter++;
       //set command
       Setpoint = PEEP;
-      //setpointIAV = 100;
+      setpointIAV = 250;
       digitalWrite(SOLENOIDCTLPIN,1);
       //update state
       if (cyclecounter > EXPIRE_TIME) {
@@ -120,7 +120,7 @@ void loop() {
   //Update PID Loop
   Input = sensorValue; //map to output scale
   myPID.Compute(); // compute PID command
-  setpointIAV = 2*(int)Output; //update valve command
+  //setpointIAV = 2*(int)Output; //update valve command
  
 
   //Move valve
